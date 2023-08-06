@@ -102,3 +102,59 @@ function showWeatherData (data){
 
     weatherForecastEl.innerHTML = otherDayForcast;
 }
+
+//TWILIO
+// twilio.js
+
+function sendSMS(phoneNumber, twilioPhoneNumber, accountSid, authToken, callback) {
+    // Validate the phone number (you can add more robust validation if needed)
+    if (!phoneNumber || !phoneNumber.match(/^\+?[1-9]\d{1,14}$/)) {
+      //callback('Please enter a valid phone number.');
+      alert("Please enter a valid phone number.");
+      return;
+    }
+  
+    // Send the SMS message
+    fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + btoa(`${accountSid}:${authToken}`)
+      },
+      body: new URLSearchParams({
+        From: twilioPhoneNumber,
+        To: phoneNumber,
+        Body: 'Hello from Twilio! This is a test message.'
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert( "Message sent successfully.");
+        callback(null, 'Message sent successfully. Message SID: ' + data.sid);
+    })
+    .catch(error => {
+        alert( "Error sending message.");
+      callback('Error sending message: ' + error.message);
+    });
+  }
+// script.js
+
+document.getElementById('smsForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+  
+    // Get the phone number from the form input
+    const phoneNumber = document.getElementById('phoneNumber').value;
+  
+    // Twilio credentials
+    const accountSid = 'AC2a3cb139966d8d75610106104fed6e20';
+    const authToken = 'd0163fd12976baa18a5a0ccb0fd0bad6';
+    const twilioPhoneNumber = '+12185177579';
+  
+    sendSMS(phoneNumber, twilioPhoneNumber, accountSid, authToken, function (error, result) {
+      if (error) {
+        alert(error);
+      } else {
+        alert(result);
+      }
+    });
+  });//twilio
